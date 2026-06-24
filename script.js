@@ -1,134 +1,110 @@
 // Forgot password
 
-// =========================================================================
-// PASSWORD RESET CONFIGURATION & STATE
-// =========================================================================
-// 🛠️ ASSIGN YOUR NEW EMAILJS TEMPLATE ID HERE:
-const EMAILJS_RESET_TEMPLATE_ID = "template_evlky34_reset"; // Update this with your actual new template ID
-
-let resetTargetEmail = ""; // Tracks which email is being updated during a link reset
+// Global tracking variables for recovery session states
+let currentRecoveryCode = null;
+let recoveryTargetEmail = "";
 
 // =========================================================================
-// FORGOT PASSWORD VIA EMAIL LINK SYSTEM
+// FORGOT PASSWORD ENGINE FLOW
 // =========================================================================
 async function triggerForgotPasswordFlow() {
     const emailEl = document.getElementById("user-email");
     const errorEl = document.getElementById("error");
     
     if (!emailEl || !errorEl) return;
+    
     const email = emailEl.value.trim().toLowerCase();
     
     // Guard 1: Verify the input email text isn't blank
     if (!email) {
         errorEl.style.color = "#ef4444";
-        errorEl.innerText = "Please type your Email Address first to request a reset link.";
+        errorEl.innerText = "Please type your Email Address first to recover your password.";
         return;
     }
     
     // Guard 2: Confirm account profile actually exists in storage database
-    const accountExists = localStorage.getItem(email);
-    if (accountExists === null) {
+    const savedPassword = localStorage.getItem(email);
+    if (savedPassword === null) {
         errorEl.style.color = "#ef4444";
         errorEl.innerText = "No account found with this email address.";
         return;
     }
     
-    // Success: Generate a unique link using the current website URL
-    const basePageUrl = window.location.origin + window.location.pathname;
-    const uniqueResetLink = `${basePageUrl}?action=reset&email=${encodeURIComponent(email)}`;
+    // Success: Create 4-digit code and distribute token via EmailJS
+    currentRecoveryCode = Math.floor(1000 + Math.random() * 9000);
+    recoveryTargetEmail = email;
     
-    // Set up parameters matching your new EmailJS Template
     const templateParams = {
         email: email,
-        reset_link: uniqueResetLink
+        verification_code: currentRecoveryCode // Recycles your template variables parameter dynamically
     };
     
-    errorEl.style.color = "#2563eb"; // Blueprint blue status text
-    errorEl.innerText = "Sending secure password reset link...";
+    errorEl.style.color = "#2563eb";
+    errorEl.innerText = "Sending secure password recovery token...";
     
     try {
-        await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_RESET_TEMPLATE_ID, templateParams);
-        errorEl.style.color = "#10b981"; // Success green text
-        errorEl.innerText = "Reset link sent! Please check your email inbox.";
+        await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, templateParams);
+        
+        // UI Layout Panel Switch
+        document.getElementById("auth-inputs-form").style.display = "none";
+        document.getElementById("recovery-panel").style.display = "flex";
+        document.getElementById("form-title").innerText = "Recover Password";
+        errorEl.innerText = "";
     } catch (error) {
-        console.error("Link Delivery Error via EmailJS:", error);
+        console.error("Recovery EmailJS Error:", error);
         errorEl.style.color = "#ef4444";
-        errorEl.innerText = "Failed to send reset link. Please check your network link.";
+        errorEl.innerText = "Failed to send code. Please check your network connection.";
     }
 }
 
-// Handler when the user clicks "Save Password" on the link form
-function submitNewPassword() {
-    const newPass = document.getElementById("new-user-pass").value;
-    const confirmPass = document.getElementById("new-user-confirm-pass").value;
+function submitRecoveryCode() {
+    const enteredCode = document.getElementById("recovery-user-code").value.trim();
     const errorEl = document.getElementById("error");
     
-    if (!newPass || !confirmPass) {
+    if (enteredCode == currentRecoveryCode) {
+        // Retrieve the stored data parameter criteria value
+        const absolutePassword = localStorage.getItem(recoveryTargetEmail);
+        
+        alert(`Verification Passed! Your password is: ${absolutePassword}`);
+        
+        // Fill out the login form fields automatically for them
+        document.getElementById("user-pass").value = absolutePassword;
+        
+        closeRecoveryFlow();
+    } else {
         errorEl.style.color = "#ef4444";
-        errorEl.innerText = "Please fill in all security fields.";
-        return;
+        errorEl.innerText = "Incorrect recovery code. Please try again.";
     }
-    
-    if (newPass !== confirmPass) {
-        errorEl.style.color = "#ef4444";
-        errorEl.innerText = "Passwords do not match. Please re-enter.";
-        return;
-    }
-    
-    // Overwrite the password directly in local storage for this email
-    localStorage.setItem(resetTargetEmail, newPass);
-    alert("Password successfully updated! You can now log in with your new password.");
-    
-    cleanResetUrlState();
 }
 
-function cancelPasswordReset() {
-    cleanResetUrlState();
+function cancelRecovery() {
+    closeRecoveryFlow();
+    const errorEl = document.getElementById("error");
+    if (errorEl) {
+        errorEl.style.color = "#ef4444";
+        errorEl.innerText = "Recovery canceled.";
+    }
 }
 
-// Clears forms and safely clears URL variables from the address bar
-function cleanResetUrlState() {
-    document.getElementById("new-user-pass").value = "";
-    document.getElementById("new-user-confirm-pass").value = "";
-    document.getElementById("error").innerText = "";
+function closeRecoveryFlow() {
+    currentRecoveryCode = null;
     
-    // Switch forms back
-    document.getElementById("password-reset-panel").style.display = "none";
+    // Reset the recovery text input field cleanly
+    const recoveryInput = document.getElementById("recovery-user-code");
+    if (recoveryInput) recoveryInput.value = "";
+    
+    // Toggle the visible card panels back to baseline layout inputs
+    document.getElementById("recovery-panel").style.display = "none";
     document.getElementById("auth-inputs-form").style.display = "flex";
-    document.getElementById("form-title").innerText = "ClearView Login";
     
-    // Scrub the ?action=reset query strings completely from the browser bar
-    window.history.replaceState({}, document.title, window.location.pathname);
+    // Force set the mode variables explicitly to sync with normal Login Mode
+    isSignUpMode = true; 
+    toggleAuth(); // Flips mode back to false internally and updates titles to "ClearView Login"
     
-    // Reset standard toggle view state
-    isSignUpMode = true;
-    toggleAuth(); 
+    // Explicitly restore your subtitle back to default state
+    const subtitleEl = document.getElementById("portal-subtitle");
+    if (subtitleEl) subtitleEl.innerText = "SECURE PORTAL SYSTEM";
 }
-
-// =========================================================================
-// URL LINK PARSER AT PAGE LOAD
-// =========================================================================
-// Append this routing gate code inside your existing DOMContentLoaded listener!
-document.addEventListener("DOMContentLoaded", () => {
-    const urlParams = new URLSearchParams(window.location.search);
-    
-    // Intercept incoming users who clicked their email password reset link
-    if (urlParams.get('action') === 'reset' && urlParams.get('email')) {
-        resetTargetEmail = urlParams.get('email').toLowerCase();
-        
-        // Hide standard inputs form card
-        document.getElementById("auth-inputs-form").style.display = "none";
-        
-        // Reveal password updates module
-        const resetPanel = document.getElementById("password-reset-panel");
-        if (resetPanel) resetPanel.style.display = "flex";
-        
-        document.getElementById("form-title").innerText = "Reset Password";
-        
-        const subtitle = document.getElementById("reset-panel-subtitle");
-        if (subtitle) subtitle.innerText = `Updating credentials for: ${resetTargetEmail}`;
-    }
-});
 
 // =========================================================================
 // 1. CONFIGURATION & CONFIG SECURITY GATEWAY
