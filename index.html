@@ -542,6 +542,129 @@
             margin-top: 25px;
             margin-bottom: 0;
         }
+
+        /* Core Auth Card layout structure */
+        .auth-form-container {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            box-sizing: border-box;
+        }
+
+        .input-field-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            text-align: left;
+            width: 100%;
+        }
+
+        .field-label {
+            font-weight: 600;
+            font-size: 0.88rem;
+            color: #1e293b;
+            letter-spacing: 0.3px;
+        }
+
+        /* Master Input Node Theme styling */
+        .auth-input {
+            width: 100%;
+            padding: 12px 14px;
+            border-radius: 12px;
+            border: 1px solid rgba(0, 0, 0, 0.12);
+            background: rgba(255, 255, 255, 0.65);
+            font-size: 0.95rem;
+            outline: none;
+            box-sizing: border-box;
+            transition: all 0.2s ease-in-out;
+        }
+
+        .auth-input:focus {
+            border-color: var(--accent-color);
+            background: rgba(255, 255, 255, 0.9);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+        }
+
+        /* Absolute Positioning Layout for Password wrapper */
+        .password-input-wrapper {
+            position: relative;
+            width: 100%;
+            display: flex;
+            align-items: center;
+        }
+
+        .pass-input {
+            padding-right: 46px; /* Protects input string text from sliding behind eye */
+        }
+
+        .password-toggle-btn {
+            position: absolute;
+            right: 14px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 1.15rem;
+            padding: 0;
+            color: #64748b;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.1s ease;
+        }
+
+        .password-toggle-btn:hover {
+            transform: scale(1.1);
+        }
+
+        /* Main Auth CTA Interaction Button */
+        .auth-submit-btn {
+            background-color: var(--accent-color);
+            color: white;
+            padding: 14px;
+            border: none;
+            border-radius: 14px;
+            font-weight: 700;
+            font-size: 1rem;
+            cursor: pointer;
+            margin-top: 8px;
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.2);
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .auth-submit-btn:hover {
+            background-color: var(--accent-hover);
+            transform: translateY(-1px);
+            box-shadow: 0 6px 16px rgba(99, 102, 241, 0.35);
+        }
+
+        .auth-submit-btn:active {
+            transform: translateY(0);
+        }
+
+        /* Bottom Toggle Helper Contextual text styling */
+        .auth-toggle-helper {
+            font-size: 0.9rem;
+            margin-top: 10px;
+            text-align: center;
+            color: #475569;
+        }
+
+        .auth-link {
+            color: var(--accent-color);
+            font-weight: 600;
+            text-decoration: none;
+            transition: color 0.2s ease;
+        }
+
+        .auth-link:hover {
+            color: var(--accent-hover);
+            text-decoration: underline;
+        }
+
+        .auth-link-secondary:hover {
+            color: var(--accent-color) !important;
+            text-decoration: underline !important;
+        }
     </style>
 </head>
 <body>
@@ -554,22 +677,56 @@
             <p id="portal-subtitle">SECURE PORTAL SYSTEM</p>
         </header>
         
-        <div id="auth-inputs-form" class="inner-card" style="display: flex; flex-direction: column; gap: 15px;">
-            <div style="display: flex; flex-direction: column; gap: 5px;">
-                <label for="user-email" style="font-weight: 600; font-size: 0.9rem; color: #1e293b;">Email Address</label>
-                <input type="email" id="user-email" placeholder="name@domain.com" style="padding: 12px; border-radius: 12px; border: 1px solid rgba(0,0,0,0.1); background: rgba(255,255,255,0.6); font-size: 1rem;">
+        <div id="auth-inputs-form" class="inner-card auth-form-container">
+            <div class="input-field-group">
+                <label for="user-email" class="field-label">Email Address</label>
+                <input type="email" id="user-email" placeholder="name@domain.com" class="auth-input">
             </div>
             
-            <div style="display: flex; flex-direction: column; gap: 5px;">
-                <label for="user-pass" style="font-weight: 600; font-size: 0.9rem; color: #1e293b;">Password</label>
-                <input type="password" id="user-pass" placeholder="••••••••" style="padding: 12px; border-radius: 12px; border: 1px solid rgba(0,0,0,0.1); background: rgba(255,255,255,0.6); font-size: 1rem;">
+            <div class="input-field-group" style="display: flex; flex-direction: column; gap: 5px; position: relative;">
+                <label for="user-pass" class="field-label">Password</label>
+                <div class="password-input-wrapper" style="position: relative; width: 100%;">
+                    <input type="password" id="user-pass" placeholder="••••••••" class="auth-input pass-input">
+                    <button type="button" id="toggle-password-btn" onclick="togglePasswordVisibility()" class="password-toggle-btn">
+                        👁️
+                    </button>
+                </div>
+                
+                <div id="forgot-link-wrapper" style="text-align: right; margin-top: 4px; display: block;">
+                    <a href="#" onclick="triggerForgotPasswordFlow()" class="auth-link-secondary" style="font-size: 0.82rem; font-weight: 500; color: #64748b; text-decoration: none; cursor: pointer;">Forgot Password?</a>
+                </div>
+            </div>
+        
+            <div id="confirm-pass-container" class="input-field-group" style="display: none;">
+                <label for="user-confirm-pass" class="field-label">Confirm Password</label>
+                <input type="password" id="user-confirm-pass" placeholder="••••••••" class="auth-input">
+            </div>
+        
+            <button id="main-auth-btn" onclick="handleAuth()" class="auth-submit-btn">Login</button>
+            
+            <p id="toggle-text" class="auth-toggle-helper">
+                Don't have an account? <a href="#" onclick="toggleAuth()" class="auth-link">Sign Up</a>
+            </p>
+        </div>
+        
+        <div id="password-reset-panel" class="inner-card" style="display: none; flex-direction: column; gap: 15px;">
+            <p style="font-weight: 600; color: #1e293b; margin: 0; text-align: center;">🔄 CREATE NEW PASSWORD</p>
+            <p style="font-size: 0.85rem; color: #475569; margin: 0; text-align: center;" id="reset-panel-subtitle">Updating credentials for account...</p>
+            
+            <div class="input-field-group">
+                <label for="new-user-pass" class="field-label">New Password</label>
+                <input type="password" id="new-user-pass" placeholder="••••••••" class="auth-input">
             </div>
     
-            <button id="main-auth-btn" onclick="handleAuth()" style="background-color: var(--accent-color); color: white; padding: 14px; border: none; border-radius: 12px; font-weight: bold; cursor: pointer; font-size: 1rem; margin-top: 10px; transition: 0.2s;">Login</button>
+            <div class="input-field-group">
+                <label for="new-user-confirm-pass" class="field-label">Confirm New Password</label>
+                <input type="password" id="new-user-confirm-pass" placeholder="••••••••" class="auth-input">
+            </div>
             
-            <p id="toggle-text" style="font-size: 0.9rem; margin-top: 15px; text-align: center; color: #475569;">
-                Don't have an account? <a href="#" onclick="toggleAuth()" style="color: var(--accent-color); font-weight: 600; text-decoration: none;">Sign Up</a>
-            </p>
+            <div style="display: flex; gap: 10px; width: 100%; margin-top: 5px;">
+                <button onclick="submitNewPassword()" style="flex: 2; background-color: var(--accent-color); color: white; padding: 12px; border: none; border-radius: 12px; font-weight: bold; cursor: pointer;">Save Password</button>
+                <button onclick="cancelPasswordReset()" style="flex: 1; background-color: #ef4444; color: white; padding: 12px; border: none; border-radius: 12px; font-weight: bold; cursor: pointer;">Cancel</button>
+            </div>
         </div>
     
         <div id="verification-panel" class="inner-card" style="display: none; flex-direction: column; gap: 15px; text-align: center;">

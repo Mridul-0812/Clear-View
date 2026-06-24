@@ -1,3 +1,135 @@
+// Forgot password
+
+// =========================================================================
+// PASSWORD RESET CONFIGURATION & STATE
+// =========================================================================
+// 🛠️ ASSIGN YOUR NEW EMAILJS TEMPLATE ID HERE:
+const EMAILJS_RESET_TEMPLATE_ID = "template_evlky34_reset"; // Update this with your actual new template ID
+
+let resetTargetEmail = ""; // Tracks which email is being updated during a link reset
+
+// =========================================================================
+// FORGOT PASSWORD VIA EMAIL LINK SYSTEM
+// =========================================================================
+async function triggerForgotPasswordFlow() {
+    const emailEl = document.getElementById("user-email");
+    const errorEl = document.getElementById("error");
+    
+    if (!emailEl || !errorEl) return;
+    const email = emailEl.value.trim().toLowerCase();
+    
+    // Guard 1: Verify the input email text isn't blank
+    if (!email) {
+        errorEl.style.color = "#ef4444";
+        errorEl.innerText = "Please type your Email Address first to request a reset link.";
+        return;
+    }
+    
+    // Guard 2: Confirm account profile actually exists in storage database
+    const accountExists = localStorage.getItem(email);
+    if (accountExists === null) {
+        errorEl.style.color = "#ef4444";
+        errorEl.innerText = "No account found with this email address.";
+        return;
+    }
+    
+    // Success: Generate a unique link using the current website URL
+    const basePageUrl = window.location.origin + window.location.pathname;
+    const uniqueResetLink = `${basePageUrl}?action=reset&email=${encodeURIComponent(email)}`;
+    
+    // Set up parameters matching your new EmailJS Template
+    const templateParams = {
+        email: email,
+        reset_link: uniqueResetLink
+    };
+    
+    errorEl.style.color = "#2563eb"; // Blueprint blue status text
+    errorEl.innerText = "Sending secure password reset link...";
+    
+    try {
+        await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_RESET_TEMPLATE_ID, templateParams);
+        errorEl.style.color = "#10b981"; // Success green text
+        errorEl.innerText = "Reset link sent! Please check your email inbox.";
+    } catch (error) {
+        console.error("Link Delivery Error via EmailJS:", error);
+        errorEl.style.color = "#ef4444";
+        errorEl.innerText = "Failed to send reset link. Please check your network link.";
+    }
+}
+
+// Handler when the user clicks "Save Password" on the link form
+function submitNewPassword() {
+    const newPass = document.getElementById("new-user-pass").value;
+    const confirmPass = document.getElementById("new-user-confirm-pass").value;
+    const errorEl = document.getElementById("error");
+    
+    if (!newPass || !confirmPass) {
+        errorEl.style.color = "#ef4444";
+        errorEl.innerText = "Please fill in all security fields.";
+        return;
+    }
+    
+    if (newPass !== confirmPass) {
+        errorEl.style.color = "#ef4444";
+        errorEl.innerText = "Passwords do not match. Please re-enter.";
+        return;
+    }
+    
+    // Overwrite the password directly in local storage for this email
+    localStorage.setItem(resetTargetEmail, newPass);
+    alert("Password successfully updated! You can now log in with your new password.");
+    
+    cleanResetUrlState();
+}
+
+function cancelPasswordReset() {
+    cleanResetUrlState();
+}
+
+// Clears forms and safely clears URL variables from the address bar
+function cleanResetUrlState() {
+    document.getElementById("new-user-pass").value = "";
+    document.getElementById("new-user-confirm-pass").value = "";
+    document.getElementById("error").innerText = "";
+    
+    // Switch forms back
+    document.getElementById("password-reset-panel").style.display = "none";
+    document.getElementById("auth-inputs-form").style.display = "flex";
+    document.getElementById("form-title").innerText = "ClearView Login";
+    
+    // Scrub the ?action=reset query strings completely from the browser bar
+    window.history.replaceState({}, document.title, window.location.pathname);
+    
+    // Reset standard toggle view state
+    isSignUpMode = true;
+    toggleAuth(); 
+}
+
+// =========================================================================
+// URL LINK PARSER AT PAGE LOAD
+// =========================================================================
+// Append this routing gate code inside your existing DOMContentLoaded listener!
+document.addEventListener("DOMContentLoaded", () => {
+    const urlParams = new URLSearchParams(window.location.search);
+    
+    // Intercept incoming users who clicked their email password reset link
+    if (urlParams.get('action') === 'reset' && urlParams.get('email')) {
+        resetTargetEmail = urlParams.get('email').toLowerCase();
+        
+        // Hide standard inputs form card
+        document.getElementById("auth-inputs-form").style.display = "none";
+        
+        // Reveal password updates module
+        const resetPanel = document.getElementById("password-reset-panel");
+        if (resetPanel) resetPanel.style.display = "flex";
+        
+        document.getElementById("form-title").innerText = "Reset Password";
+        
+        const subtitle = document.getElementById("reset-panel-subtitle");
+        if (subtitle) subtitle.innerText = `Updating credentials for: ${resetTargetEmail}`;
+    }
+});
+
 // =========================================================================
 // 1. CONFIGURATION & CONFIG SECURITY GATEWAY
 // =========================================================================
@@ -29,20 +161,34 @@ function toggleAuth() {
     const formTitleEl = document.getElementById("form-title");
     const mainAuthBtnEl = document.getElementById("main-auth-btn");
     const toggleTextEl = document.getElementById("toggle-text");
+    const confirmPassContainer = document.getElementById("confirm-pass-container");
+    const forgotWrapper = document.getElementById("forgot-link-wrapper");
 
     if (errorEl) errorEl.innerText = "";
     
+    // Updates title and buttons based on state
     if (formTitleEl) {
-        formTitleEl.innerText = isSignUpMode ? "Create Account" : "Algebro Login";
+        formTitleEl.innerText = isSignUpMode ? "Create Account" : "ClearView Login";
     }
     if (mainAuthBtnEl) {
         mainAuthBtnEl.innerText = isSignUpMode ? "Sign Up" : "Login";
     }
     
+    // Smoothly hide/show the Confirm Password field
+    if (confirmPassContainer) {
+        confirmPassContainer.style.display = isSignUpMode ? "flex" : "none";
+    }
+    
+    // NEW: Toggles the Forgot Password link visibility dynamically!
+    if (forgotWrapper) {
+        forgotWrapper.style.display = isSignUpMode ? "none" : "block";
+    }
+    
+    // Updates the bottom toggle helper navigation link
     if (toggleTextEl) {
         toggleTextEl.innerHTML = isSignUpMode ?
-            'Already have an account? <a href="#" onclick="toggleAuth()" style="color: var(--accent-color); font-weight:600; text-decoration:none;">Login</a>' :
-            'Don\'t have an account? <a href="#" onclick="toggleAuth()" style="color: var(--accent-color); font-weight:600; text-decoration:none;">Sign Up</a>';
+            'Already have an account? <a href="#" onclick="toggleAuth()" class="auth-link">Login</a>' :
+            'Don\'t have an account? <a href="#" onclick="toggleAuth()" class="auth-link">Sign Up</a>';
     }
 }
 
@@ -52,11 +198,12 @@ function toggleAuth() {
 async function handleAuth() {
     const emailEl = document.getElementById("user-email");
     const passEl = document.getElementById("user-pass");
+    const confirmPassEl = document.getElementById("user-confirm-pass");
     const errorEl = document.getElementById("error");
 
     if (!emailEl || !passEl || !errorEl) return;
 
-    const email = emailEl.value.trim();
+    const email = emailEl.value.trim().toLowerCase();
     const pass = passEl.value;
 
     // Validate empty input elements
@@ -67,7 +214,25 @@ async function handleAuth() {
     }
 
     if (isSignUpMode) {
-        // --- STAGE 1: SIGN UP & DYNAMIC PANEL SWAP ---
+        // --- STAGE 1: SIGN UP & SECURITY GUARDS ---
+        const confirmPass = confirmPassEl ? confirmPassEl.value : "";
+
+        // Guard 1: Verify Confirm Password Matches
+        if (pass !== confirmPass) {
+            errorEl.style.color = "#ef4444";
+            errorEl.innerText = "Passwords do not match. Please re-enter.";
+            return;
+        }
+
+        // Guard 2: Strict Duplicate Account Registry Prevention Check 🛑
+        const accountExists = localStorage.getItem(email);
+        if (accountExists !== null) {
+            errorEl.style.color = "#ef4444";
+            errorEl.innerText = "An account with this email already exists!";
+            return; // Terminate execution immediately. EmailJS will NOT trigger.
+        }
+
+        // Setup verification code allocation payload
         currentGeneratedCode = Math.floor(1000 + Math.random() * 9000);
         pendingEmail = email;
         pendingPass = pass;
@@ -174,13 +339,25 @@ function resetAuthUIPanels() {
 }
 
 // =========================================================================
-// ... KEEP ALL ORIGINAL CODE BELOW THIS LINE (renderTasks, filters, etc.) ...
+// PASSWORD VISIBILITY TOGGLE ENGINE
 // =========================================================================
-
-// Logout
+function togglePasswordVisibility() {
+    const passwordInput = document.getElementById("user-pass");
+    const toggleBtn = document.getElementById("toggle-password-btn");
+    
+    if (!passwordInput || !toggleBtn) return;
+    
+    if (passwordInput.type === "password") {
+        passwordInput.type = "text";
+        toggleBtn.textContent = "🙈"; // Icon when password is visible
+    } else {
+        passwordInput.type = "password";
+        toggleBtn.textContent = "👁️"; // Icon when password is hidden
+    }
+}
 
 // =========================================================================
-// 5. SECURE WORKSPACE TERMINATION (LOGOUT ROUTINE)
+// 5. SECURE WORKSPACE TERMINATION (LOGOUT ROUTINE - CLEANED & DE-DUPLICATED)
 // =========================================================================
 function handleLogout() {
     // 1. Hide the workspace panel module wrapper completely
@@ -189,53 +366,25 @@ function handleLogout() {
         mainContentContainer.style.setProperty('display', 'none', 'important');
     }
 
-    // 2. Clear sensitive active credential parameters from your screen inputs
-    const emailEl = document.getElementById("user-email");
-    const passEl = document.getElementById("user-pass");
-    if (emailEl) emailEl.value = "";
-    if (passEl) passEl.value = "";
-
-    // 3. Reveal the pristine login application gate card layout interface
+    // 2. Reveal the pristine login application gate card layout interface
     const loginScreenEl = document.getElementById("login-screen");
     if (loginScreenEl) {
         loginScreenEl.style.display = "block";
     }
 
-    // 4. Set authentication state flag back to initial login mode default state
-    isSignUpMode = true; 
-    toggleAuth(); // Resets layout structure text variant components back to Algebro Login cleanly
-}
-
-// Check tab logic
-
-// =========================================================================
-// 5. SECURE WORKSPACE TERMINATION (LOGOUT ROUTINE)
-// =========================================================================
-function handleLogout() {
-    // 1. Hide the workspace panel module wrapper completely
-    const mainContentContainer = document.getElementById("main-content");
-    if (mainContentContainer) {
-        mainContentContainer.style.setProperty('display', 'none', 'important');
-    }
-
-    // 2. Clear sensitive active credential parameters from your screen inputs
+    // 3. Clear sensitive active credential parameters from your screen inputs cleanly
     const emailEl = document.getElementById("user-email");
     const passEl = document.getElementById("user-pass");
+    const confirmPassEl = document.getElementById("user-confirm-pass");
+    
     if (emailEl) emailEl.value = "";
     if (passEl) passEl.value = "";
+    if (confirmPassEl) confirmPassEl.value = "";
 
-    // 3. Reveal the pristine login application gate card layout interface
-    const loginScreenEl = document.getElementById("login-screen");
-    if (loginScreenEl) {
-        loginScreenEl.style.display = "block";
-    }
-
-    // 4. Set authentication state flag back to initial login mode default state
+    // 4. Force default view context back to basic clean login system
     isSignUpMode = true; 
-    toggleAuth(); // Resets layout structure text variant components back to Algebro Login cleanly
+    toggleAuth(); 
 }
-
-// Focus Hub - Code part 1
 
 // =========================================================================
 // AUTO-LOGIN RESTORATION GATEWAY
@@ -268,31 +417,16 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 });
 
-// Focus Hub - Code part 2
-
-function handleLogout() {
-    const mainContentContainer = document.getElementById("main-content");
-    if (mainContentContainer) {
-        mainContentContainer.style.setProperty('display', 'none', 'important');
-    }
-    const loginScreenEl = document.getElementById("login-screen");
-    if (loginScreenEl) {
-        loginScreenEl.style.display = "block";
-    }
-    // Wipe form entries
-    document.getElementById("user-email").value = "";
-    document.getElementById("user-pass").value = "";
-}
-
-// Check for existing saved tasks on load, otherwise start fresh
+// =========================================================================
+// LOCAL STORAGE DATA CONTROLLERS & HOOKS
+// =========================================================================
 let tasksArray = JSON.parse(localStorage.getItem('clearview_tasks')) || [];
 let currentEditingTaskTimestamp = null;
 let taskToDeleteTimestamp = null;
 
-// Helper utility to update the browser's persistent memory storage (from script2.js)
 function saveToLocalStorage() {
     localStorage.setItem('clearview_tasks', JSON.stringify(tasksArray));
-    updateProgressBar();
+    if (typeof updateProgressBar === "function") updateProgressBar();
 }
 
 function openTab(evt, tabName) {
@@ -316,7 +450,7 @@ function openTaskModal() {
 
 function closeTaskModal() {
     document.getElementById('task-modal').classList.remove('active');
-    clearForm();
+    if (typeof clearForm === "function") clearForm();
     currentEditingTaskTimestamp = null;
 }
 
