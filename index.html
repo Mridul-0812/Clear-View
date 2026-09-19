@@ -6,62 +6,6 @@
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
     <title>ClearView HSC Survival Station 🚀</title>
     <style>
-        /* Position the minimise button at the top left of the glass container */
-        .minimize-toggle-btn {
-            position: absolute;
-            top: 20px;
-            left: 25px;
-            background: rgba(0, 0, 0, 0.05);
-            border: none;
-            border-radius: 50%;
-            width: 28px;
-            height: 28px;
-            font-size: 1.2rem;
-            font-weight: bold;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #475569;
-            transition: all 0.2s ease;
-            z-index: 5;
-        }
-
-        #main-auth-btn:hover {
-            background-color: #4f46e5 !important; /* Soft shift on interaction */
-            transform: scale(1.02);
-        }
-
-        .minimize-toggle-btn:hover {
-            background: rgba(0, 0, 0, 0.12);
-            transform: scale(1.1);
-        }
-
-        /* Smooth collapsing behavior for the container sections */
-        .glass-container main, 
-        .glass-container footer,
-        .glass-container .tab-nav,
-        .glass-container header p {
-            transition: opacity 0.25s ease, max-height 0.3s ease;
-            max-height: 2000px; /* High value to allow smooth expansion */
-            opacity: 1;
-            overflow: hidden;
-        }
-
-        /* Classes applied when the workspace bar is collapsed */
-        .glass-container.card-minimized main,
-        .glass-container.card-minimized footer,
-        .glass-container.card-minimized .tab-nav,
-        .glass-container.card-minimized header p {
-            max-height: 0px !important;
-            opacity: 0 !important;
-            margin: 0 !important;
-            padding: 0 !important;
-        }
-
-        .glass-container.card-minimized {
-            padding-bottom: 20px !important;
-        }
         :root {
             --accent-color: #6366f1; 
             --accent-hover: #4f46e5;
@@ -122,7 +66,7 @@
             border-radius: 40px;
             padding: 40px;
             width: 100%;
-            max-width: 550px;
+            max-width: 580px;
             box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
             border: 1px solid rgba(255, 255, 255, 0.4);
             color: #1e293b;
@@ -130,6 +74,55 @@
             box-sizing: border-box;
             margin: 20px;
             position: relative;
+        }
+
+        .minimize-toggle-btn {
+            position: absolute;
+            top: 20px;
+            left: 25px;
+            background: rgba(0, 0, 0, 0.05);
+            border: none;
+            border-radius: 50%;
+            width: 28px;
+            height: 28px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #475569;
+            transition: all 0.2s ease;
+            z-index: 5;
+        }
+
+        .minimize-toggle-btn:hover {
+            background: rgba(0, 0, 0, 0.12);
+            transform: scale(1.1);
+        }
+
+        .glass-container main, 
+        .glass-container footer,
+        .glass-container .tab-nav,
+        .glass-container header p {
+            transition: opacity 0.25s ease, max-height 0.3s ease;
+            max-height: 2000px;
+            opacity: 1;
+            overflow: hidden;
+        }
+
+        .glass-container.card-minimized main,
+        .glass-container.card-minimized footer,
+        .glass-container.card-minimized .tab-nav,
+        .glass-container.card-minimized header p {
+            max-height: 0px !important;
+            opacity: 0 !important;
+            margin: 0 !important;
+            padding: 0 !important;
+        }
+
+        .glass-container.card-minimized {
+            padding-bottom: 20px !important;
         }
 
         .logo-text {
@@ -163,7 +156,7 @@
         .tab-btn {
             background: transparent;
             color: #475569;
-            padding: 10px 24px;
+            padding: 10px 18px;
             border-radius: 25px;
             cursor: pointer;
             border: none;
@@ -304,7 +297,19 @@
             color: #334155;
         }
 
-        /* Progress Bar Tracker */
+        .task-summary-bar {
+            display: flex;
+            justify-content: space-between;
+            background: rgba(255, 255, 255, 0.6);
+            padding: 10px 16px;
+            border-radius: 14px;
+            font-weight: 700;
+            font-size: 0.9rem;
+            color: #1e293b;
+            margin-bottom: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.5);
+        }
+
         .progress-wrapper {
             background: rgba(255, 255, 255, 0.5);
             border-radius: 14px;
@@ -338,7 +343,6 @@
             transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        /* Task Box Component Layouts */
         #task-list {
             list-style: none;
             padding: 0;
@@ -348,12 +352,12 @@
         }
 
         .task-item {
-            padding: 18px;
+            padding: 16px;
             border-radius: 20px;
             margin-bottom: 12px;
             display: flex;
             flex-direction: column;
-            gap: 6px;
+            gap: 8px;
             box-shadow: 0 8px 16px rgba(0,0,0,0.04);
             text-align: left;
             position: relative;
@@ -363,13 +367,11 @@
             transition: all 0.3s ease;
         }
 
-        /* Priority Colors */
         .task-item.matrix-critical { background: var(--matrix-critical); border-left: 6px solid #ef4444; }
         .task-item.matrix-warning { background: var(--matrix-warning); border-left: 6px solid #f59e0b; }
         .task-item.matrix-info { background: var(--matrix-info); border-left: 6px solid #3b82f6; }
         .task-item.matrix-safe { background: var(--matrix-safe); border-left: 6px solid #10b981; }
 
-        /* Dynamic Completed State override */
         .task-item.completed {
             background: rgba(34, 197, 94, 0.2) !important;
             border-left: 6px solid var(--success-color) !important;
@@ -390,7 +392,6 @@
             min-width: 0;
         }
 
-        /* Custom Interactive Checkbox Node Styling */
         .task-checkbox-input {
             width: 22px;
             height: 22px;
@@ -415,11 +416,29 @@
 
         .task-meta {
             font-size: 0.8rem;
-            color: #475569;
+            color: #334155;
             display: flex;
-            gap: 10px;
-            font-weight: 500;
+            gap: 8px;
+            font-weight: 600;
             padding-left: 34px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .subject-badge {
+            background: rgba(99, 102, 241, 0.18);
+            color: #4338ca;
+            padding: 3px 8px;
+            border-radius: 6px;
+            font-weight: 700;
+        }
+
+        .duration-badge {
+            background: rgba(245, 158, 11, 0.18);
+            color: #b45309;
+            padding: 3px 8px;
+            border-radius: 6px;
+            font-weight: 700;
         }
 
         .task-notes {
@@ -428,7 +447,7 @@
             background: rgba(255, 255, 255, 0.5);
             padding: 10px;
             border-radius: 10px;
-            margin-top: 4px;
+            margin-top: 2px;
             margin-left: 34px;
             border: 1px solid rgba(255,255,255,0.3);
         }
@@ -469,7 +488,6 @@
             transform: scale(1.1);
         }
 
-        /* Modal Overlays */
         .modal-overlay {
             display: none;
             position: absolute;
@@ -477,15 +495,16 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(255, 255, 255, 0.85);
+            background: rgba(255, 255, 255, 0.92);
             backdrop-filter: blur(25px);
             -webkit-backdrop-filter: blur(25px);
             border-radius: 40px;
             z-index: 10;
             box-sizing: border-box;
-            padding: 40px;
+            padding: 35px;
             flex-direction: column;
             justify-content: center;
+            overflow-y: auto;
         }
 
         .modal-overlay.active {
@@ -495,11 +514,11 @@
         .modal-overlay h2 {
             margin-top: 0;
             color: #0f172a;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
         }
 
         .form-field {
-            margin-bottom: 15px;
+            margin-bottom: 12px;
             text-align: left;
         }
 
@@ -543,7 +562,6 @@
             margin-bottom: 0;
         }
 
-        /* Core Auth Card layout structure */
         .auth-form-container {
             display: flex;
             flex-direction: column;
@@ -566,7 +584,6 @@
             letter-spacing: 0.3px;
         }
 
-        /* Master Input Node Theme styling */
         .auth-input {
             width: 100%;
             padding: 12px 14px;
@@ -585,7 +602,6 @@
             box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
         }
 
-        /* Absolute Positioning Layout for Password wrapper */
         .password-input-wrapper {
             position: relative;
             width: 100%;
@@ -594,7 +610,7 @@
         }
 
         .pass-input {
-            padding-right: 46px; /* Protects input string text from sliding behind eye */
+            padding-right: 46px;
         }
 
         .password-toggle-btn {
@@ -616,7 +632,6 @@
             transform: scale(1.1);
         }
 
-        /* Main Auth CTA Interaction Button */
         .auth-submit-btn {
             background-color: var(--accent-color);
             color: white;
@@ -637,11 +652,6 @@
             box-shadow: 0 6px 16px rgba(99, 102, 241, 0.35);
         }
 
-        .auth-submit-btn:active {
-            transform: translateY(0);
-        }
-
-        /* Bottom Toggle Helper Contextual text styling */
         .auth-toggle-helper {
             font-size: 0.9rem;
             margin-top: 10px;
@@ -659,11 +669,6 @@
         .auth-link:hover {
             color: var(--accent-hover);
             text-decoration: underline;
-        }
-
-        .auth-link-secondary:hover {
-            color: var(--accent-color) !important;
-            text-decoration: underline !important;
         }
     </style>
 </head>
@@ -683,17 +688,15 @@
                 <input type="email" id="user-email" placeholder="name@domain.com" class="auth-input">
             </div>
             
-            <div class="input-field-group" style="display: flex; flex-direction: column; gap: 5px; position: relative;">
+            <div class="input-field-group">
                 <label for="user-pass" class="field-label">Password</label>
-                <div class="password-input-wrapper" style="position: relative; width: 100%;">
+                <div class="password-input-wrapper">
                     <input type="password" id="user-pass" placeholder="••••••••" class="auth-input pass-input">
-                    <button type="button" id="toggle-password-btn" onclick="togglePasswordVisibility()" class="password-toggle-btn">
-                        👁️
-                    </button>
+                    <button type="button" id="toggle-password-btn" onclick="togglePasswordVisibility()" class="password-toggle-btn">👁️</button>
                 </div>
                 
-                <div id="forgot-link-wrapper" style="text-align: right; margin-top: 4px; display: block;">
-                    <a href="#" onclick="triggerForgotPasswordFlow()" class="auth-link-secondary" style="font-size: 0.82rem; font-weight: 500; color: #64748b; text-decoration: none; cursor: pointer;">Forgot Password?</a>
+                <div id="forgot-link-wrapper" style="text-align: right; margin-top: 4px;">
+                    <a href="#" onclick="triggerForgotPasswordFlow()" style="font-size: 0.82rem; font-weight: 500; color: #64748b; text-decoration: none;">Forgot Password?</a>
                 </div>
             </div>
         
@@ -709,38 +712,6 @@
             </p>
         </div>
         
-        <div id="password-reset-panel" class="inner-card" style="display: none; flex-direction: column; gap: 15px;">
-            <p style="font-weight: 600; color: #1e293b; margin: 0; text-align: center;">🔄 CREATE NEW PASSWORD</p>
-            <p style="font-size: 0.85rem; color: #475569; margin: 0; text-align: center;" id="reset-panel-subtitle">Updating credentials for account...</p>
-            
-            <div class="input-field-group">
-                <label for="new-user-pass" class="field-label">New Password</label>
-                <input type="password" id="new-user-pass" placeholder="••••••••" class="auth-input">
-            </div>
-    
-            <div class="input-field-group">
-                <label for="new-user-confirm-pass" class="field-label">Confirm New Password</label>
-                <input type="password" id="new-user-confirm-pass" placeholder="••••••••" class="auth-input">
-            </div>
-            
-            <div style="display: flex; gap: 10px; width: 100%; margin-top: 5px;">
-                <button onclick="submitNewPassword()" style="flex: 2; background-color: var(--accent-color); color: white; padding: 12px; border: none; border-radius: 12px; font-weight: bold; cursor: pointer;">Save Password</button>
-                <button onclick="cancelPasswordReset()" style="flex: 1; background-color: #ef4444; color: white; padding: 12px; border: none; border-radius: 12px; font-weight: bold; cursor: pointer;">Cancel</button>
-            </div>
-        </div>
-    
-        <div id="verification-panel" class="inner-card" style="display: none; flex-direction: column; gap: 15px; text-align: center;">
-            <p style="font-weight: 600; color: #1e293b; margin: 0;">🛡️ SECURITY CHECK</p>
-            <p style="font-size: 0.85rem; color: #475569; margin: 0;">We sent a code to your email. Check your tabs and paste it below:</p>
-            
-            <input type="number" id="verification-user-code" placeholder="Enter 4-digit code" style="padding: 12px; border-radius: 12px; border: 1px solid rgba(0,0,0,0.1); background: rgba(255,255,255,0.6); font-size: 1.2rem; text-align: center; letter-spacing: 4px;">
-            
-            <div style="display: flex; gap: 10px; width: 100%;">
-                <button onclick="submitVerificationCode()" style="flex: 2; background-color: #10b981; color: white; padding: 12px; border: none; border-radius: 12px; font-weight: bold; cursor: pointer;">Verify Code</button>
-                <button onclick="cancelVerification()" style="flex: 1; background-color: #ef4444; color: white; padding: 12px; border: none; border-radius: 12px; font-weight: bold; cursor: pointer;">Cancel</button>
-            </div>
-        </div>
-    
         <p id="error" style="color: #ef4444; font-weight: 600; font-size: 0.9rem; margin: 15px 0 0 0; text-align: center; min-height: 20px;"></p>
     </div>
 
@@ -751,14 +722,30 @@
             
             <div class="modal-overlay" id="task-modal">
                 <h2 id="modal-title">📝 Configure New Task</h2>
+                
                 <div class="form-field">
-                    <label for="form-task-name">Task Details / Syllabus Point</label>
+                    <label for="form-task-name">Task Details / Syllabus Point *</label>
                     <input type="text" id="form-task-name" placeholder="e.g., Complete 2024 Physics Exam Section II">
                 </div>
+
+                <div class="form-field">
+                    <label for="form-subject-name">Subject Name</label>
+                    <input type="text" id="form-subject-name" placeholder="e.g., HSC Physics, Extension Math">
+                </div>
+
+                <div class="form-field">
+                    <label>Estimated Time Assigned</label>
+                    <div style="display: flex; gap: 10px;">
+                        <input type="number" id="form-hours" min="0" max="24" value="0" placeholder="Hours">
+                        <input type="number" id="form-minutes" min="0" max="59" step="5" value="0" placeholder="Minutes">
+                    </div>
+                </div>
+
                 <div class="form-field">
                     <label for="form-due-date">Due Date</label>
                     <input type="date" id="form-due-date">
                 </div>
+
                 <div class="form-field">
                     <label for="form-priority">Priority Level</label>
                     <select id="form-priority">
@@ -767,10 +754,12 @@
                         <option value="high">🔴 High Priority (Immediate Panic)</option>
                     </select>
                 </div>
+
                 <div class="form-field">
                     <label for="form-notes">Study Notes / Resources needed</label>
                     <textarea id="form-notes" rows="2" placeholder="e.g., Focus on feedback loops question..."></textarea>
                 </div>
+
                 <div class="modal-actions">
                     <button class="cancel-btn" onclick="closeTaskModal()">Cancel</button>
                     <button class="save-btn" onclick="saveTask()">Save Task ✨</button>
@@ -779,7 +768,7 @@
     
             <div class="modal-overlay" id="delete-modal">
                 <h2 style="color: var(--panic-color);">⚠️ Delete Task Milestone?</h2>
-                <p style="color: #475569; margin-bottom: 25px;" id="delete-modal-text">Are you sure you want to completely eliminate this task framework?</p>
+                <p style="color: #475569; margin-bottom: 25px;" id="delete-modal-text">Are you sure you want to eliminate this task framework?</p>
                 <div class="modal-actions">
                     <button class="cancel-btn" onclick="closeDeleteModal()">No, Keep It</button>
                     <button class="confirm-delete-btn" id="confirm-delete-action-btn">Yes, Obliterate 💥</button>
@@ -790,7 +779,7 @@
                 <h1 class="logo-text">ClearView</h1>
                 <p>YOUR FOCUSED, PRIVATE WORKSPACE.</p>
                 
-                <nav class="tab-nav" style="display: flex; gap: 10px; align-items: center; justify-content: center; flex-wrap: wrap;">
+                <nav class="tab-nav">
                     <button class="tab-btn active" onclick="openTab(event, 'home-tab')">Survival Home</button>
                     <button class="tab-btn" onclick="openTab(event, 'tasks-tab')">Study Tasks</button>
                     <button class="tab-btn" onclick="window.location.href='focus-hub.html'">Focus Hub</button>
@@ -828,7 +817,12 @@
                     <div class="inner-card">
                         <h2>✅ Syllabus Dot-Point Destroyer</h2>
                         <p>Break down your subjects into fully categorized milestones.</p>
-                        
+
+                        <div class="task-summary-bar">
+                            <span id="total-tasks-counter">Tasks: 0/0</span>
+                            <span id="total-time-counter">Total Time: 0m</span>
+                        </div>
+
                         <div class="progress-wrapper">
                             <div class="progress-info-text">
                                 <span>Syllabus Target Mastery</span>
@@ -842,26 +836,432 @@
                         <button class="add-task-trigger-btn" onclick="openTaskModal()">➕ Add Task</button>
                         
                         <div class="controls-row">
-                            <input type="text" id="task-search-input" placeholder="🔍 Search by name or date..." oninput="filterAndSortTasks()">
+                            <input type="text" id="task-search-input" placeholder="🔍 Search by name, subject..." oninput="filterAndSortTasks()">
                             <select id="task-sort-select" onchange="filterAndSortTasks()">
                                 <option value="date">📅 Sort: Due Date</option>
+                                <option value="subject">📚 Sort: Subject</option>
+                                <option value="duration-asc">⏱️ Sort: Time (Shortest First)</option>
+                                <option value="duration-desc">⏳ Sort: Time (Longest First)</option>
                                 <option value="priority">⚠️ Sort: Priority</option>
                                 <option value="alpha">🔤 Sort: Alphabetical</option>
                             </select>
                         </div>
-                        
+
                         <ul id="task-list"></ul>
                     </div>
                 </section>
             </main>
-    
+
             <footer>
-                <p>Made with ☕ and a mutual hatred of band descriptors.</p>
+                <p>© ClearView Study Engine. Built for High Performers.</p>
             </footer>
         </div>
-    
-    </div> 
-    <script src="https://cdn.jsdelivr.net/npm/appwrite@14.0.1"></script>
-    <script src="script.js" defer></script>
+    </div>
+
+    <script>
+        // Global Task State Memory
+        let tasksArray = JSON.parse(localStorage.getItem('clearview_tasks')) || [];
+        let currentEditingTaskTimestamp = null;
+        let taskToDeleteTimestamp = null;
+        let isSignUp = false;
+
+        // AUTH SYSTEM LOGIC
+        function toggleAuth() {
+            isSignUp = !isSignUp;
+            document.getElementById('form-title').textContent = isSignUp ? "ClearView Sign Up" : "ClearView Login";
+            document.getElementById('main-auth-btn').textContent = isSignUp ? "Sign Up" : "Login";
+            document.getElementById('confirm-pass-container').style.display = isSignUp ? "flex" : "none";
+            document.getElementById('toggle-text').innerHTML = isSignUp 
+                ? 'Already have an account? <a href="#" onclick="toggleAuth()" class="auth-link">Login</a>'
+                : 'Don\'t have an account? <a href="#" onclick="toggleAuth()" class="auth-link">Sign Up</a>';
+            document.getElementById('error').textContent = "";
+        }
+
+        function togglePasswordVisibility() {
+            const passInput = document.getElementById('user-pass');
+            const toggleBtn = document.getElementById('toggle-password-btn');
+            if (passInput.type === "password") {
+                passInput.type = "text";
+                toggleBtn.textContent = "🙈";
+            } else {
+                passInput.type = "password";
+                toggleBtn.textContent = "👁️";
+            }
+        }
+
+        function handleAuth() {
+            const email = document.getElementById('user-email').value.trim();
+            const pass = document.getElementById('user-pass').value.trim();
+            const errorElement = document.getElementById('error');
+
+            if (!email || !pass) {
+                errorElement.textContent = "Please fill in all credentials.";
+                return;
+            }
+
+            if (isSignUp) {
+                const confirmPass = document.getElementById('user-confirm-pass').value.trim();
+                if (pass !== confirmPass) {
+                    errorElement.textContent = "Passwords do not match!";
+                    return;
+                }
+                localStorage.setItem('clearview_user', JSON.stringify({ email, pass }));
+                alert("Account created successfully! Logging you in...");
+            }
+
+            // Grant workspace access
+            document.getElementById('login-screen').style.display = "none";
+            document.getElementById('main-content').style.display = "flex";
+            renderTasks();
+        }
+
+        function handleLogout() {
+            document.getElementById('main-content').style.display = "none";
+            document.getElementById('login-screen').style.display = "block";
+            document.getElementById('user-pass').value = "";
+        }
+
+        function triggerForgotPasswordFlow() {
+            alert("Password reset instructions sent to registered email address.");
+        }
+
+        // WORKSPACE CARD MINIMIZE
+        function toggleMinimize() {
+            const card = document.getElementById('main-card');
+            const btn = document.getElementById('minimize-btn');
+            card.classList.toggle('card-minimized');
+            if (card.classList.contains('card-minimized')) {
+                btn.textContent = '＋';
+                btn.title = "Expand Workspace";
+            } else {
+                btn.textContent = '−';
+                btn.title = "Minimise Workspace";
+            }
+        }
+
+        // TAB NAVIGATION
+        function openTab(evt, tabName) {
+            const tabcontent = document.getElementsByClassName("tab-content");
+            for (let i = 0; i < tabcontent.length; i++) {
+                tabcontent[i].classList.remove("active");
+            }
+            const tablinks = document.getElementsByClassName("tab-btn");
+            for (let i = 0; i < tablinks.length; i++) {
+                tablinks[i].classList.remove("active");
+            }
+            document.getElementById(tabName).classList.add("active");
+            evt.currentTarget.classList.add("active");
+        }
+
+        // MODAL HANDLERS
+        function openTaskModal() {
+            document.getElementById('modal-title').textContent = "📝 Configure New Task";
+            document.getElementById('task-modal').classList.add('active');
+        }
+
+        function closeTaskModal() {
+            document.getElementById('task-modal').classList.remove('active');
+            clearForm();
+            currentEditingTaskTimestamp = null;
+        }
+
+        function clearForm() {
+            document.getElementById('form-task-name').value = '';
+            document.getElementById('form-subject-name').value = '';
+            document.getElementById('form-hours').value = '0';
+            document.getElementById('form-minutes').value = '0';
+            document.getElementById('form-due-date').value = '';
+            document.getElementById('form-priority').value = 'medium';
+            document.getElementById('form-notes').value = '';
+        }
+
+        function triggerDeleteConfirmation(timestamp) {
+            taskToDeleteTimestamp = timestamp;
+            const targetObject = tasksArray.find(t => t.id === timestamp);
+            if (!targetObject) return;
+            document.getElementById('delete-modal-text').textContent = `Are you sure you want to eliminate "${targetObject.name}"?`;
+            document.getElementById('delete-modal').classList.add('active');
+        }
+
+        function closeDeleteModal() {
+            document.getElementById('delete-modal').classList.remove('active');
+            taskToDeleteTimestamp = null;
+        }
+
+        document.getElementById('confirm-delete-action-btn').addEventListener('click', () => {
+            if (taskToDeleteTimestamp !== null) {
+                tasksArray = tasksArray.filter(t => t.id !== taskToDeleteTimestamp);
+                saveToLocalStorage();
+                renderTasks();
+            }
+            closeDeleteModal();
+        });
+
+        function editTask(timestamp) {
+            const targetObject = tasksArray.find(t => t.id === timestamp);
+            if (!targetObject) return;
+
+            currentEditingTaskTimestamp = timestamp;
+            document.getElementById('form-task-name').value = targetObject.name || '';
+            document.getElementById('form-subject-name').value = targetObject.subject || '';
+            
+            const totalMins = targetObject.duration || 0;
+            document.getElementById('form-hours').value = Math.floor(totalMins / 60);
+            document.getElementById('form-minutes').value = totalMins % 60;
+            
+            document.getElementById('form-due-date').value = targetObject.date || '';
+            document.getElementById('form-priority').value = targetObject.priority || 'medium';
+            document.getElementById('form-notes').value = targetObject.notes || '';
+
+            document.getElementById('modal-title').textContent = "✏️ Edit Task Properties";
+            document.getElementById('task-modal').classList.add('active');
+        }
+
+        function toggleComplete(timestamp) {
+            const targetObject = tasksArray.find(t => t.id === timestamp);
+            if (targetObject) {
+                targetObject.completed = !targetObject.completed;
+                saveToLocalStorage();
+                renderTasks();
+            }
+        }
+
+        // SAVE & PERSISTENCE
+        function saveToLocalStorage() {
+            localStorage.setItem('clearview_tasks', JSON.stringify(tasksArray));
+            updateProgressBarAndTotals();
+        }
+
+        function saveTask() {
+            const name = document.getElementById('form-task-name').value.trim();
+            const subject = document.getElementById('form-subject-name').value.trim();
+            const hours = parseInt(document.getElementById('form-hours').value, 10) || 0;
+            const minutes = parseInt(document.getElementById('form-minutes').value, 10) || 0;
+            const date = document.getElementById('form-due-date').value;
+            const priority = document.getElementById('form-priority').value;
+            const notes = document.getElementById('form-notes').value.trim();
+
+            if (name === '') {
+                alert('Please input a task description!');
+                return;
+            }
+
+            const totalDurationMinutes = (hours * 60) + minutes;
+
+            if (currentEditingTaskTimestamp !== null) {
+                const taskObj = tasksArray.find(t => t.id === currentEditingTaskTimestamp);
+                if (taskObj) {
+                    taskObj.name = name;
+                    taskObj.subject = subject;
+                    taskObj.duration = totalDurationMinutes;
+                    taskObj.date = date;
+                    taskObj.priority = priority;
+                    taskObj.notes = notes;
+                }
+            } else {
+                const newTask = {
+                    id: Date.now(),
+                    name: name,
+                    subject: subject,
+                    duration: totalDurationMinutes,
+                    date: date,
+                    priority: priority,
+                    notes: notes,
+                    completed: false
+                };
+                tasksArray.push(newTask);
+            }
+
+            closeTaskModal();
+            saveToLocalStorage();
+            renderTasks();
+        }
+
+        // FORMATTING HELPER FOR DURATION
+        function formatDuration(totalMinutes) {
+            if (!totalMinutes || totalMinutes === 0) return '0m';
+            const hrs = Math.floor(totalMinutes / 60);
+            const mins = totalMinutes % 60;
+            if (hrs > 0 && mins > 0) return `${hrs}h ${mins}m`;
+            if (hrs > 0) return `${hrs}h`;
+            return `${mins}m`;
+        }
+
+        // METRICS CALCULATOR FOR SUMMARY BAR AND MASTERY TRACKER
+        function updateProgressBarAndTotals() {
+            const totalTasks = tasksArray.length;
+            const completedTasks = tasksArray.filter(t => t.completed).length;
+            const percentage = totalTasks === 0 ? 0 : Math.round((completedTasks / totalTasks) * 100);
+            
+            // Calculate total allocated study time
+            const totalMinutesCombined = tasksArray.reduce((acc, t) => acc + (t.duration || 0), 0);
+            
+            // Update Mastery Bar Elements
+            const fillElement = document.getElementById('progress-bar-fill-element');
+            const labelElement = document.getElementById('progress-percent-label');
+            if (fillElement && labelElement) {
+                fillElement.style.width = `${percentage}%`;
+                labelElement.textContent = `${percentage}%`;
+            }
+
+            // Update Dynamic Counter Elements
+            const taskCountLabel = document.getElementById('total-tasks-counter');
+            const totalTimeLabel = document.getElementById('total-time-counter');
+
+            if (taskCountLabel) {
+                taskCountLabel.textContent = `Tasks: ${completedTasks}/${totalTasks}`;
+            }
+            if (totalTimeLabel) {
+                totalTimeLabel.textContent = `Total Time: ${formatDuration(totalMinutesCombined)}`;
+            }
+        }
+
+        function determineMatrixClass(priority, dueDateString) {
+            if (!dueDateString) {
+                if (priority === 'high') return 'matrix-critical';
+                if (priority === 'medium') return 'matrix-warning';
+                return 'matrix-safe';
+            }
+
+            const today = new Date();
+            today.setHours(0,0,0,0);
+            const targetDate = new Date(dueDateString);
+            targetDate.setHours(0,0,0,0);
+            
+            const timeDiff = targetDate.getTime() - today.getTime();
+            const daysRemaining = Math.ceil(timeDiff / (1000 * 3600 * 24));
+
+            if (priority === 'high') {
+                return (daysRemaining <= 3) ? 'matrix-critical' : 'matrix-warning';
+            } else if (priority === 'medium') {
+                if (daysRemaining <= 2) return 'matrix-critical';
+                return (daysRemaining <= 7) ? 'matrix-warning' : 'matrix-info';
+            } else {
+                if (daysRemaining <= 1) return 'matrix-warning';
+                return (daysRemaining <= 5) ? 'matrix-info' : 'matrix-safe';
+            }
+        }
+
+        function filterAndSortTasks() {
+            renderTasks();
+        }
+
+        // TASK RENDER ENGINE
+        function renderTasks() {
+            const listContainer = document.getElementById('task-list');
+            if (!listContainer) return;
+            listContainer.innerHTML = '';
+
+            updateProgressBarAndTotals();
+
+            const searchQuery = document.getElementById('task-search-input').value.toLowerCase().trim();
+            const sortBy = document.getElementById('task-sort-select').value;
+
+            let processedTasks = tasksArray.filter(task => {
+                const matchesName = task.name.toLowerCase().includes(searchQuery);
+                const matchesSubject = (task.subject || '').toLowerCase().includes(searchQuery);
+                const matchesDate = (task.date || '').toLowerCase().includes(searchQuery);
+                return matchesName || matchesSubject || matchesDate;
+            });
+
+            if (sortBy === 'alpha') {
+                processedTasks.sort((a, b) => a.name.localeCompare(b.name));
+            } else if (sortBy === 'subject') {
+                processedTasks.sort((a, b) => (a.subject || '').localeCompare(b.subject || ''));
+            } else if (sortBy === 'duration-asc') {
+                processedTasks.sort((a, b) => (a.duration || 0) - (b.duration || 0));
+            } else if (sortBy === 'duration-desc') {
+                processedTasks.sort((a, b) => (b.duration || 0) - (a.duration || 0));
+            } else if (sortBy === 'priority') {
+                const weight = { high: 3, medium: 2, low: 1 };
+                processedTasks.sort((a, b) => weight[b.priority] - weight[a.priority]);
+            } else if (sortBy === 'date') {
+                processedTasks.sort((a, b) => {
+                    if (!a.date) return 1;
+                    if (!b.date) return -1;
+                    return new Date(a.date) - new Date(b.date);
+                });
+            }
+
+            processedTasks.forEach(task => {
+                const matrixClass = determineMatrixClass(task.priority, task.date);
+                const subjectBadge = task.subject ? `<span class="subject-badge">📚 ${task.subject}</span>` : `<span class="subject-badge">📚 General</span>`;
+                const durationBadge = `<span class="duration-badge">⏱️ ${formatDuration(task.duration)}</span>`;
+                const metaDate = `📅 Due: ${task.date ? task.date : 'No Date'}`;
+                const notesBlock = task.notes ? `<div class="task-notes">📝 ${task.notes}</div>` : '';
+                
+                const li = document.createElement('li');
+                li.className = `task-item ${matrixClass} ${task.completed ? 'completed' : ''}`;
+                
+                li.innerHTML = `
+                    <div class="task-main">
+                        <div class="task-interactive-title-group">
+                            <input type="checkbox" class="task-checkbox-input" ${task.completed ? 'checked' : ''} onchange="toggleComplete(${task.id})">
+                            <span class="task-title">${task.name}</span>
+                        </div>
+                        <div class="task-actions">
+                            <button class="action-icon-btn edit-btn" onclick="editTask(${task.id})" title="Edit task">✏️</button>
+                            <button class="action-icon-btn delete-btn" onclick="triggerDeleteConfirmation(${task.id})" title="Delete task">🗑️</button>
+                        </div>
+                    </div>
+                    <div class="task-meta">
+                        ${subjectBadge}
+                        ${durationBadge}
+                        <span>${metaDate}</span>
+                        <span>•</span>
+                        <span style="text-transform: capitalize;">⚠️ ${task.priority}</span>
+                    </div>
+                    ${notesBlock}
+                `;
+                listContainer.appendChild(li);
+            });
+        }
+
+        // HOME TAB INTERACTIVE SCRIPTS
+        document.getElementById('manifest-btn').addEventListener('click', () => {
+            const input = document.getElementById('atar-input').value;
+            const res = document.getElementById('manifest-result');
+            if (input) {
+                res.textContent = `✨ Target ATAR ${input} locked in! Keep grinding!`;
+            } else {
+                res.textContent = `Please enter a valid ATAR goal.`;
+            }
+        });
+
+        document.getElementById('panic-btn').addEventListener('click', () => {
+            const messages = [
+                "Take a deep breath. Inhale for 4s, hold for 4s, exhale for 4s. 🌿",
+                "You are bigger than a single exam or syllabus point. 🌊",
+                "One small milestone at a time. You've got this! 💪"
+            ];
+            const rand = messages[Math.floor(Math.random() * messages.length)];
+            document.getElementById('panic-message').textContent = rand;
+        });
+
+        const quotes = [
+            "Your ATAR does not define you, but a high Band 6 feels pretty nice.",
+            "Consistency beats intensity every single time.",
+            "Future you will thank you for taking action today."
+        ];
+
+        document.getElementById('quote-btn').addEventListener('click', () => {
+            const rand = quotes[Math.floor(Math.random() * quotes.length)];
+            document.getElementById('quote-display').textContent = `"${rand}"`;
+        });
+
+        // WALLPAPER SWITCHER
+        document.getElementById('bg-btn').addEventListener('click', () => {
+            const randomId = Date.now(); 
+            const newBgUrl = `https://picsum.photos/1920/1080?random=${randomId}`;
+            const img = new Image();
+            img.src = newBgUrl;
+            img.onload = () => {
+                document.body.style.backgroundImage = `url('${newBgUrl}')`;
+            };
+        });
+
+        // INITIAL RENDER ON LOAD
+        renderTasks();
+    </script>
 </body>
 </html>
